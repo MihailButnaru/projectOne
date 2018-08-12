@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Burn</string>
+    <string name="facebook_app_id">248633099091520</string>
+    <string name="fb_login_protocol_scheme">fb248633099091520</string>
 </resources>
