@@ -50,8 +50,8 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
         FacebookSdk.sdkInitialize(getApplicationContext());
+        setContentView(R.layout.activity_login);
         callManager = CallbackManager.Factory.create();
 
         try{
@@ -81,7 +81,14 @@ public class LoginActivity extends AppCompatActivity {
         profileTracker = new ProfileTracker() {
             @Override
             protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
-                Log.d("First Name: ", " " + currentProfile.getFirstName());
+                if(oldProfile != null){
+                    Log.d("First Name: ", " " + oldProfile.getFirstName());
+
+                }
+                if(currentProfile != null){
+                    Log.d("First Name: ", " " + currentProfile.getFirstName());
+
+                }
             }
         };
 
@@ -98,7 +105,7 @@ public class LoginActivity extends AppCompatActivity {
         loginfbButton.registerCallback(callManager, new FacebookCallback<LoginResult>(){
             @Override
             public void onSuccess(LoginResult loginResult){
-
+                Log.d("UserID: ", " " + loginResult.getAccessToken().getUserId());
             }
             @Override
             public void onCancel(){
@@ -112,12 +119,23 @@ public class LoginActivity extends AppCompatActivity {
         loginfbButton.setReadPermissions(Arrays.asList("public_profile"));
     }
 
+
+
+
+
     public void onClick(View v){
         if(v == newButton){
             loginfbButton.performClick();
         }
     }
-
+    @Override
+    protected void onResume(){
+        super.onResume();
+    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+    }
     @Override
     protected void onStop(){
         accessTokenTracker.stopTracking();
