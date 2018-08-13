@@ -31,6 +31,8 @@ import java.util.Arrays;
 
 
 /**
+ *
+ *  Created by Mihail Butnaru
  *  Login Activity [Facebook | Twitter]
  *
  *  This activity will allow you to login using the Facebook and Twitter account.
@@ -39,14 +41,14 @@ import java.util.Arrays;
 
 public class LoginActivity extends AppCompatActivity {
 
-
-    private CallbackManager callManager;
-    private AccessTokenTracker accessTokenTracker;
-    private ProfileTracker profileTracker;
-    private LoginButton loginfbButton;
+    private CallbackManager callManager;              // CallbankManager handles login response from the Factory.create()
+    private AccessTokenTracker accessTokenTracker;      // TokenTracker of the user [UNIQUE]
+    private ProfileTracker profileTracker;              // ProfileTracker [FName,SName]
+    private LoginButton loginfbButton;                  // LoginButton - Facebook Library
     private Button newButton;
-    private static final String TAG = "Login Activity";
+    private static final String TAG = "Login Activity";         // Simple tag for testing
 
+    // onCreate is the main method that is calling everything | Do not Modify
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +56,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         callManager = CallbackManager.Factory.create();
 
+        // Generates a keyhash when the user logins.
         try{
             PackageInfo info = getPackageManager().getPackageInfo(
                     "com.burn.burn",
@@ -69,7 +72,6 @@ public class LoginActivity extends AppCompatActivity {
         }catch(NoSuchAlgorithmException e){
 
         }
-
 
         // Access Token Tracker
         accessTokenTracker = new AccessTokenTracker() {
@@ -122,8 +124,10 @@ public class LoginActivity extends AppCompatActivity {
         loginfbButton.setReadPermissions(Arrays.asList("public_profile"));
     }
 
-
-
+    /*
+        PassInformation is used in order to pass the data to the object
+        This method can be used to send the data to the Database | Twitter & Facebook
+    */
     private void passInformation(Profile profile){
         String id = (profile != null) ? profile.getId() : "User not logged in";
         String firstName = (profile != null) ? profile.getFirstName() : "User not logged in";
@@ -144,11 +148,14 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    // Not Used
     public void onClick(View v){
         if(v == newButton){
             loginfbButton.performClick();
         }
     }
+
+    // onResume | onPause | onStop is used to control the state of the activity | Do not Modify
     @Override
     protected void onResume(){
         super.onResume();

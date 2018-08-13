@@ -2,13 +2,13 @@ package com.burn.burn.controller.login;
 
 public class Login {
 
-   private String user_Id;
-   private String first_Name;
-   private String last_Name;
+    private String user_Id;
+    private String first_Name;
+    private String last_Name;
 
-   public Login(){
+    public Login(){
 
-   }
+    }
 
     public String getUser_Id() {
         return user_Id;
