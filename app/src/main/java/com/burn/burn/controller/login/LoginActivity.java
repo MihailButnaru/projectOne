@@ -81,14 +81,6 @@ public class LoginActivity extends AppCompatActivity {
         profileTracker = new ProfileTracker() {
             @Override
             protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
-                if(oldProfile != null){
-                    Log.d("First Name: ", " " + oldProfile.getFirstName());
-
-                }
-                if(currentProfile != null){
-                    Log.d("First Name: ", " " + currentProfile.getFirstName());
-
-                }
             }
         };
 
@@ -105,7 +97,18 @@ public class LoginActivity extends AppCompatActivity {
         loginfbButton.registerCallback(callManager, new FacebookCallback<LoginResult>(){
             @Override
             public void onSuccess(LoginResult loginResult){
-                Log.d("UserID: ", " " + loginResult.getAccessToken().getUserId());
+                if(Profile.getCurrentProfile() == null){
+                    profileTracker  = new ProfileTracker() {
+                        @Override
+                        protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
+                            passInformation(currentProfile);
+                            profileTracker.stopTracking();
+                        }
+                    };
+                }else{
+                    Profile profile = Profile.getCurrentProfile();
+                    passInformation(profile);
+                }
             }
             @Override
             public void onCancel(){
@@ -121,7 +124,25 @@ public class LoginActivity extends AppCompatActivity {
 
 
 
+    private void passInformation(Profile profile){
+        String id = (profile != null) ? profile.getId() : "User not logged in";
+        String firstName = (profile != null) ? profile.getFirstName() : "User not logged in";
+        String secondName = (profile != null) ? profile.getLastName() : "User not logged in";
 
+        if(id != null && firstName != null && secondName != null){
+            Login loginFB = new Login();
+            loginFB.setUser_Id(id);
+            loginFB.setFirst_Name(firstName);
+            loginFB.setLast_Name(secondName);
+
+            Log.d("First Name: ", " " + loginFB.getFirst_Name());
+            Log.d("Second Name: ", " " + loginFB.getLast_Name());
+            Log.d("ID: ", " " + loginFB.getUser_Id());
+        }else{
+            Log.d("Problem: ", " Empty field from the user.");
+        }
+
+    }
 
     public void onClick(View v){
         if(v == newButton){
