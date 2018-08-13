@@ -22,6 +22,17 @@ import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.twitter.sdk.android.core.Callback;
+import com.twitter.sdk.android.core.DefaultLogger;
+import com.twitter.sdk.android.core.Result;
+import com.twitter.sdk.android.core.Twitter;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterAuthToken;
+import com.twitter.sdk.android.core.TwitterConfig;
+import com.twitter.sdk.android.core.TwitterCore;
+import com.twitter.sdk.android.core.TwitterException;
+import com.twitter.sdk.android.core.TwitterSession;
+import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
 import java.io.Console;
 import java.security.MessageDigest;
@@ -46,13 +57,28 @@ public class LoginActivity extends AppCompatActivity {
     private ProfileTracker profileTracker;              // ProfileTracker [FName,SName]
     private LoginButton loginfbButton;                  // LoginButton - Facebook Library
     private Button newButton;
+    private Button new_button_twitter;
     private static final String TAG = "Login Activity";         // Simple tag for testing
+
+    //Twitter
+    TwitterLoginButton loginTwitter;
+    private static final String TWITTER_KEY = "BeVSZlzqbOEWo56O7OBYRCca9";
+    private static final String TWITTER_SECRET = "tPL3PWy6rFMazllusLBTYZ3PwzRglLxjuhR8dqwQxKBxSxoRo4";
 
     // onCreate is the main method that is calling everything | Do not Modify
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
+        Twitter.initialize(this);
+        TwitterConfig config = new TwitterConfig.Builder(this)
+                .logger(new DefaultLogger(Log.DEBUG))
+                .twitterAuthConfig(new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET))
+                .debug(true)
+                .build();
+        Twitter.initialize(config);
+
+
         setContentView(R.layout.activity_login);
         callManager = CallbackManager.Factory.create();
 
@@ -122,6 +148,29 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
         loginfbButton.setReadPermissions(Arrays.asList("public_profile"));
+
+
+
+        new_button_twitter = (Button) findViewById(R.id.tw);
+        new_button_twitter.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                loginTwitter.performClick();
+            }
+        });
+        loginTwitter = (TwitterLoginButton) findViewById(R.id.loginTwitter);
+        loginTwitter.setCallback(new Callback<TwitterSession>() {
+            @Override
+            public void success(Result<TwitterSession> result) {
+                // Do something with result, which provides a TwitterSession for making API calls
+                TwitterSession session = result.data;
+                passInformationTwitter(session);
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+                // Do something on failure
+            }
+        });
     }
 
     /*
@@ -145,7 +194,16 @@ public class LoginActivity extends AppCompatActivity {
         }else{
             Log.d("Problem: ", " Empty field from the user.");
         }
-
+    }
+    private void passInformationTwitter(TwitterSession session){
+        Login loginTwitter = new Login();
+        if(session != null) {
+            Long id = session.getUserId();
+            String username = session.getUserName();
+            String idT = id.toString();
+            loginTwitter.setUser_Id(idT);
+            loginTwitter.setFirst_Name(username);
+        }
     }
 
     // Not Used
@@ -173,6 +231,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
+        loginTwitter.onActivityResult(requestCode,resultCode,data);
         callManager.onActivityResult(requestCode,resultCode,data);
     }
 }
