@@ -31,6 +31,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.TwitterAuthProvider;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.DefaultLogger;
 import com.twitter.sdk.android.core.Result;
@@ -72,6 +73,15 @@ public class LoginActivity extends AppCompatActivity {
     private AccessTokenTracker accessTokenTracker;      // TokenTracker of the user [UNIQUE]
     private ProfileTracker profileTracker;              // ProfileTracker [FName,SName]
     // ------ END ---------------------------------
+
+    // ------ TWITTER LOGIN --- [DO NOT MODIFY]
+    private static final String TWITTERTAG = "TwitterLogin";
+    private FirebaseAuth tAuth;
+    private TwitterLoginButton loginTwitter;
+    private static final String TWITTER_KEY = "BeVSZlzqbOEWo56O7OBYRCca9";
+    private static final String TWITTER_SECRET = "tPL3PWy6rFMazllusLBTYZ3PwzRglLxjuhR8dqwQxKBxSxoRo4";
+    private Button new_button_twitter;
+    // ------ END ----------------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,7 +148,66 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         // --------- END -----------------------------
+
+        // ----- TWITTER LOGIN -----------------
+        TwitterAuthConfig authConfig = new TwitterAuthConfig(
+                TWITTER_KEY, TWITTER_SECRET);
+        TwitterConfig twitterConfig = new TwitterConfig.Builder(this)
+                .twitterAuthConfig(authConfig).build();
+        Twitter.initialize(twitterConfig);
+
+        new_button_twitter = (Button) findViewById(R.id.tw);
+        new_button_twitter.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                loginTwitter.performClick();
+            }
+        });
+        loginTwitter = findViewById(R.id.loginTwitter);
+        loginTwitter.setCallback(new Callback<TwitterSession>() {
+            @Override
+            public void success(Result<TwitterSession> result) {
+                Log.d(TWITTERTAG, "twitterLogin:success" + result);
+                handleTwitterSession(result.data);
+            }
+
+            @Override
+            public void failure(TwitterException exception) {
+                Log.w(TWITTERTAG, "twitterLogin:failure", exception);
+                updateUI(null);
+            }
+        });
+        // ---- TWITTER LOGIN -----------
     }
+
+
+    // ---- TWITTER SESSION ----
+    private void handleTwitterSession(TwitterSession session) {
+        Log.d(TWITTERTAG, "handleTwitterSession:" + session);
+        AuthCredential credential = TwitterAuthProvider.getCredential(
+                session.getAuthToken().token,
+                session.getAuthToken().secret);
+
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TWITTERTAG, "signInWithCredential:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TWITTERTAG, "signInWithCredential:failure", task.getException());
+                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
+                    }
+                });
+    }
+    // ---- END SESSION -----
+
 
     // ----- METHODS IMPLEMENTATIONS
     @Override
@@ -152,6 +221,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // Pass the activity result back to the Facebook SDK
+        loginTwitter.onActivityResult(requestCode, resultCode, data);
         mCallbackManager.onActivityResult(requestCode, resultCode, data);
     }
     private void handleFacebookAccessToken(AccessToken token) {
@@ -198,7 +268,6 @@ public class LoginActivity extends AppCompatActivity {
     }
     // ------- END---------
 
-
     // ---- SIGNOUT FACEBOOK NOT WORKING
     public void signOut() {
         mAuth.signOut();
@@ -206,7 +275,6 @@ public class LoginActivity extends AppCompatActivity {
         updateUI(null);
     }
     // ---- END SIGN OUT
-
 
     // ---- FACEBOOK UPDATE User INTERFACE
     private void updateUI(FirebaseUser user) {
