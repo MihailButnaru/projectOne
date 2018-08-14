@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "267243424563",
+    "firebase_url": "https://burncomics.firebaseio.com",
+    "project_id": "burncomics",
+    "storage_bucket": "burncomics.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:267243424563:android:1b315870b57b1e50",
+        "android_client_info": {
+          "package_name": "com.burn.burn"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "267243424563-5qfbrbt398nrl4mtm0djgf22fr34at0a.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.burn.burn",
+            "certificate_hash": "30e9dbb39040998a98208e9e63fb6142bf7a696f"
+          }
+        },
+        {
+          "client_id": "267243424563-tsl0i8q4d0rlk6o7l7n37ojuf9pnp6va.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBNAWayhrCp-bRMaCRB5jaHps2YYEHqiZo"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "267243424563-tsl0i8q4d0rlk6o7l7n37ojuf9pnp6va.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

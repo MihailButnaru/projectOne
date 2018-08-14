@@ -3,6 +3,7 @@ package com.burn.burn.controller.login;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Base64;
@@ -20,8 +21,16 @@ import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.DefaultLogger;
 import com.twitter.sdk.android.core.Result;
@@ -38,6 +47,8 @@ import java.io.Console;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import android.content.pm.*;
+import android.widget.Toast;
+
 import java.util.Arrays;
 
 
@@ -52,37 +63,32 @@ import java.util.Arrays;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private CallbackManager callManager;              // CallbankManager handles login response from the Factory.create()
+    // ----- FACEBOOK LOGIN ----- [DO NOT MODIFY]
+    private static final String FACEBOOKTAG = "FacebookLogin";
+    private FirebaseAuth mAuth;
+    private CallbackManager mCallbackManager;
+    private LoginButton loginfbButton;
+    private Button newButton;
     private AccessTokenTracker accessTokenTracker;      // TokenTracker of the user [UNIQUE]
     private ProfileTracker profileTracker;              // ProfileTracker [FName,SName]
-    private LoginButton loginfbButton;                  // LoginButton - Facebook Library
-    private Button newButton;
-    private Button new_button_twitter;
-    private static final String TAG = "Login Activity";         // Simple tag for testing
+    // ------ END ---------------------------------
 
-    //Twitter
-    TwitterLoginButton loginTwitter;
-    private static final String TWITTER_KEY = "BeVSZlzqbOEWo56O7OBYRCca9";
-    private static final String TWITTER_SECRET = "tPL3PWy6rFMazllusLBTYZ3PwzRglLxjuhR8dqwQxKBxSxoRo4";
-
-    // onCreate is the main method that is calling everything | Do not Modify
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
-        Twitter.initialize(this);
-        TwitterConfig config = new TwitterConfig.Builder(this)
-                .logger(new DefaultLogger(Log.DEBUG))
-                .twitterAuthConfig(new TwitterAuthConfig(TWITTER_KEY, TWITTER_SECRET))
-                .debug(true)
-                .build();
-        Twitter.initialize(config);
-
-
         setContentView(R.layout.activity_login);
-        callManager = CallbackManager.Factory.create();
 
-        // Generates a keyhash when the user logins.
+        // -------- FACEBOOK LOGIN ------------
+        mAuth = FirebaseAuth.getInstance();
+        mCallbackManager = CallbackManager.Factory.create();
+        loginfbButton = (LoginButton) findViewById(R.id.loginfbButton);
+        newButton = (Button) findViewById(R.id.fb);
+        newButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+                loginfbButton.performClick();
+            }
+        });
         try{
             PackageInfo info = getPackageManager().getPackageInfo(
                     "com.burn.burn",
@@ -94,89 +100,84 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d("KeyHash: " , Base64.encodeToString(md.digest(), Base64.DEFAULT));
             }
         }catch(PackageManager.NameNotFoundException e){
-
         }catch(NoSuchAlgorithmException e){
-
         }
 
-        // Access Token Tracker
-        accessTokenTracker = new AccessTokenTracker() {
+        loginfbButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
-            protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
-
-            }
-        };
-        profileTracker = new ProfileTracker() {
-            @Override
-            protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
-            }
-        };
-
-        accessTokenTracker.startTracking();
-        profileTracker.startTracking();
-        loginfbButton = (LoginButton) findViewById(R.id.loginfbButton);
-        newButton = (Button) findViewById(R.id.fb);
-        newButton.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                loginfbButton.performClick();
-            }
-        });
-
-        loginfbButton.registerCallback(callManager, new FacebookCallback<LoginResult>(){
-            @Override
-            public void onSuccess(LoginResult loginResult){
+            public void onSuccess(LoginResult loginResult) {
+                Log.d(FACEBOOKTAG, "facebook:onSuccess:" + loginResult);
+                handleFacebookAccessToken(loginResult.getAccessToken());
                 if(Profile.getCurrentProfile() == null){
                     profileTracker  = new ProfileTracker() {
                         @Override
                         protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
-                            passInformation(currentProfile);
+                            Log.d("LOGIN", "SUCCESSSS");
+                            passInformation(currentProfile);        // Passing the information to the object
                             profileTracker.stopTracking();
                         }
                     };
                 }else{
+                    Log.d("LOGIN", "FAILEEED");
                     Profile profile = Profile.getCurrentProfile();
                     passInformation(profile);
                 }
             }
+
             @Override
-            public void onCancel(){
+            public void onCancel() {
+                Log.d(FACEBOOKTAG, "facebook:cancel:");
 
             }
+
             @Override
-            public void onError(FacebookException error){
+            public void onError(FacebookException error) {
+                Log.d(FACEBOOKTAG, "facebook:error:");
 
             }
         });
-        loginfbButton.setReadPermissions(Arrays.asList("public_profile"));
 
-
-
-        new_button_twitter = (Button) findViewById(R.id.tw);
-        new_button_twitter.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
-                loginTwitter.performClick();
-            }
-        });
-        loginTwitter = (TwitterLoginButton) findViewById(R.id.loginTwitter);
-        loginTwitter.setCallback(new Callback<TwitterSession>() {
-            @Override
-            public void success(Result<TwitterSession> result) {
-                // Do something with result, which provides a TwitterSession for making API calls
-                TwitterSession session = result.data;
-                passInformationTwitter(session);
-            }
-
-            @Override
-            public void failure(TwitterException exception) {
-                // Do something on failure
-            }
-        });
+        // --------- END -----------------------------
     }
 
-    /*
-        PassInformation is used in order to pass the data to the object
-        This method can be used to send the data to the Database | Twitter & Facebook
-    */
+    // ----- METHODS IMPLEMENTATIONS
+    @Override
+    public void onStart(){
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        updateUI(currentUser);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        // Pass the activity result back to the Facebook SDK
+        mCallbackManager.onActivityResult(requestCode, resultCode, data);
+    }
+    private void handleFacebookAccessToken(AccessToken token) {
+        Log.d(FACEBOOKTAG, "handleFacebookAccessToken:" + token);
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        mAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(FACEBOOKTAG, "signInWithCredential:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            updateUI(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(FACEBOOKTAG, "signInWithCredential:failure", task.getException());
+                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            updateUI(null);
+                        }
+                    }
+                });
+    }
+
+    // ------ INFORMTATION TO THE OBJECT -----
     private void passInformation(Profile profile){
         String id = (profile != null) ? profile.getId() : "User not logged in";
         String firstName = (profile != null) ? profile.getFirstName() : "User not logged in";
@@ -195,43 +196,34 @@ public class LoginActivity extends AppCompatActivity {
             Log.d("Problem: ", " Empty field from the user.");
         }
     }
-    private void passInformationTwitter(TwitterSession session){
-        Login loginTwitter = new Login();
-        if(session != null) {
-            Long id = session.getUserId();
-            String username = session.getUserName();
-            String idT = id.toString();
-            loginTwitter.setUser_Id(idT);
-            loginTwitter.setFirst_Name(username);
+    // ------- END---------
+
+
+    // ---- SIGNOUT FACEBOOK NOT WORKING
+    public void signOut() {
+        mAuth.signOut();
+        LoginManager.getInstance().logOut();
+        updateUI(null);
+    }
+    // ---- END SIGN OUT
+
+
+    // ---- FACEBOOK UPDATE User INTERFACE
+    private void updateUI(FirebaseUser user) {
+        //hideProgressDialog();
+        if (user != null) {
+          //  mStatusTextView.setText(getString(R.string.facebook_status_fmt, user.getDisplayName()));
+            //mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
+
+            //findViewById(R.id.button_facebook_login).setVisibility(View.GONE);
+            //findViewById(R.id.button_facebook_signout).setVisibility(View.VISIBLE);
+        } else {
+            //mStatusTextView.setText(R.string.signed_out);
+            //mDetailTextView.setText(null);
+
+            //findViewById(R.id.button_facebook_login).setVisibility(View.VISIBLE);
+            //findViewById(R.id.button_facebook_signout).setVisibility(View.GONE);
         }
     }
-
-    // Not Used
-    public void onClick(View v){
-        if(v == newButton){
-            loginfbButton.performClick();
-        }
-    }
-
-    // onResume | onPause | onStop is used to control the state of the activity | Do not Modify
-    @Override
-    protected void onResume(){
-        super.onResume();
-    }
-    @Override
-    protected void onPause(){
-        super.onPause();
-    }
-    @Override
-    protected void onStop(){
-        accessTokenTracker.stopTracking();
-        profileTracker.stopTracking();
-        super.onStop();
-    }
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode, resultCode, data);
-        loginTwitter.onActivityResult(requestCode,resultCode,data);
-        callManager.onActivityResult(requestCode,resultCode,data);
-    }
+    // END USER INTERFACE FACEBOOK
 }

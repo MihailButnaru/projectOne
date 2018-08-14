@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Burn</string>
-    <string name="facebook_app_id">248633099091520</string>
-    <string name="fb_login_protocol_scheme">fb248633099091520</string>
+    <string name="facebook_application_id" translatable="false"> 248633099091520</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fb248633099091520</string>
     <string name="com.twitter.sdk.android.CONSUMER_KEY">BeVSZlzqbOEWo56O7OBYRCca9</string>
     <string name="com.twitter.sdk.android.CONSUMER_SECRET">tPL3PWy6rFMazllusLBTYZ3PwzRglLxjuhR8dqwQxKBxSxoRo4</string>
 </resources>
