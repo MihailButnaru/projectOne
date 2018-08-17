@@ -43,6 +43,7 @@ import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
+import com.twitter.sdk.android.core.models.User;
 
 import java.io.Console;
 import java.security.MessageDigest;
@@ -168,6 +169,8 @@ public class LoginActivity extends AppCompatActivity {
             public void success(Result<TwitterSession> result) {
                 Log.d(TWITTERTAG, "twitterLogin:success" + result);
                 handleTwitterSession(result.data);
+                TwitterSession session = result.data;
+                getUserDetails(session);
             }
 
             @Override
@@ -180,7 +183,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
-    // ---- TWITTER SESSION ----
+    // ---- TWITTER SESSION ----  METHOD THAT HANDLES THE DATA FROM THE API
     private void handleTwitterSession(TwitterSession session) {
         Log.d(TWITTERTAG, "handleTwitterSession:" + session);
         AuthCredential credential = TwitterAuthProvider.getCredential(
@@ -205,6 +208,38 @@ public class LoginActivity extends AppCompatActivity {
                         }
                     }
                 });
+    }
+
+    public void getUserDetails(TwitterSession twitterSession) {
+        TwitterCore.getInstance().getApiClient(twitterSession).getAccountService().verifyCredentials(false,true,false).enqueue(new Callback<User>() {
+            @Override
+            public void success(Result<User> userResult) {
+                User user = userResult.data;
+
+                try {
+                   Login lDetails = new Login();
+                   String fullname = user.name;
+                   String twitterid = String.valueOf(user.id);
+                   String lastName = fullname.substring(0, fullname.length()-1);
+
+                   lDetails.setFirst_Name(fullname);
+                   lDetails.setUser_Id(twitterid);
+                   lDetails.setLast_Name(lastName);
+
+
+//                 String secondName = fullname.substring(fullname.lastIndexOf(" "));
+//                 String firstName = fullname.substring(0, fullname.lastIndexOf(" "));
+//                 Log.d("USER ID: ", " "+ twitterid);
+//                 Log.d("FULL NAME, " , " " + fullname);
+//                 Log.d("FIRST NAME", " " + firstName);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void failure(TwitterException e) {
+            }
+        });
     }
     // ---- END SESSION -----
 
