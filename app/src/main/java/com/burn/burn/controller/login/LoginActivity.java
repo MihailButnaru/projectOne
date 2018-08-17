@@ -1,5 +1,6 @@
 package com.burn.burn.controller.login;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.burn.burn.controller.profile.ProfileActivity;
 import com.burn.burn.R;
 
 import com.facebook.AccessToken;
@@ -33,24 +35,18 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.TwitterAuthProvider;
 import com.twitter.sdk.android.core.Callback;
-import com.twitter.sdk.android.core.DefaultLogger;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.Twitter;
 import com.twitter.sdk.android.core.TwitterAuthConfig;
-import com.twitter.sdk.android.core.TwitterAuthToken;
 import com.twitter.sdk.android.core.TwitterConfig;
-import com.twitter.sdk.android.core.TwitterCore;
 import com.twitter.sdk.android.core.TwitterException;
 import com.twitter.sdk.android.core.TwitterSession;
 import com.twitter.sdk.android.core.identity.TwitterLoginButton;
 
-import java.io.Console;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import android.content.pm.*;
 import android.widget.Toast;
-
-import java.util.Arrays;
 
 
 /**
@@ -83,8 +79,13 @@ public class LoginActivity extends AppCompatActivity {
     private Button new_button_twitter;
     // ------ END ----------------------------
 
+    public static final String EXTRA_USERNAME = "com.burn.burn.MESSAGE";
+    final int duration = Toast.LENGTH_SHORT; // Duration for which toast is on-screen.
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        final Context context = getApplicationContext(); // Necessary to create a Toast.
+
         super.onCreate(savedInstanceState);
         FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_login);
@@ -168,12 +169,24 @@ public class LoginActivity extends AppCompatActivity {
             public void success(Result<TwitterSession> result) {
                 Log.d(TWITTERTAG, "twitterLogin:success" + result);
                 handleTwitterSession(result.data);
+                // Display toast to user.
+                CharSequence text = "Twitter sign-in successful.";
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
+                // Transition to profile page.
+                Intent intent = new Intent(LoginActivity.this, ProfileActivity.class);
+                String username = "Joe Bloggs"; // TODO: Get username from Twitter API.
+                intent.putExtra(EXTRA_USERNAME, username);
+                startActivity(intent);
             }
 
             @Override
             public void failure(TwitterException exception) {
                 Log.w(TWITTERTAG, "twitterLogin:failure", exception);
                 updateUI(null);
+                CharSequence text = "Twitter sign-in failed!";
+                Toast toast = Toast.makeText(context, text, duration);
+                toast.show();
             }
         });
         // ---- TWITTER LOGIN -----------
