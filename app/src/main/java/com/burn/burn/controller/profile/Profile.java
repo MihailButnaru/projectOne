@@ -2,6 +2,7 @@ package com.burn.burn.controller.profile;
 
 public class Profile {
 
+    private String id;
     private String firstName;
     private String lastName;
     private String city;
@@ -18,13 +19,18 @@ public class Profile {
         this.line2 = line2;
     }
 
-    public Profile(String firstName, String lastName, String city, String country, String line1) {
-
+    public Profile(String id, String firstName, String lastName) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
-        this.city = city;
-        this.country = country;
-        this.line1 = line1;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public Profile(String firstName, String lastName) {

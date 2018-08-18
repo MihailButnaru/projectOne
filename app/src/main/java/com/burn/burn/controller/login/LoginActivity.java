@@ -27,6 +27,8 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -34,6 +36,8 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.TwitterAuthProvider;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.twitter.sdk.android.core.Callback;
 import com.twitter.sdk.android.core.Result;
 import com.twitter.sdk.android.core.Twitter;
@@ -47,6 +51,9 @@ import com.twitter.sdk.android.core.models.User;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
+
 import android.content.pm.*;
 import android.widget.Toast;
 
@@ -171,6 +178,7 @@ public class LoginActivity extends AppCompatActivity {
             public void success(Result<TwitterSession> result) {
                 Log.d(TWITTERTAG, "twitterLogin:success" + result);
                 handleTwitterSession(result.data);
+
             }
 
             @Override
@@ -187,7 +195,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
     // ---- TWITTER SESSION ----  METHOD THAT HANDLES THE DATA FROM THE API
-    private void handleTwitterSession(TwitterSession session) {
+    private void handleTwitterSession(final TwitterSession session) {
         Log.d(TWITTERTAG, "handleTwitterSession:" + session);
         AuthCredential credential = TwitterAuthProvider.getCredential(
                 session.getAuthToken().token,
@@ -201,6 +209,7 @@ public class LoginActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TWITTERTAG, "signInWithCredential:success");
                             FirebaseUser user = mAuth.getCurrentUser();
+                            getUserDetails(session);
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -220,14 +229,18 @@ public class LoginActivity extends AppCompatActivity {
                 User user = userResult.data;
 
                 try {
-                   Login lDetails = new Login();
+//                   Login lDetails = new Login();
                    String fullname = user.name;
                    String twitterid = String.valueOf(user.id);
                    String lastName = fullname.substring(0, fullname.length()-1);
 
-                   lDetails.setFirst_Name(fullname);
-                   lDetails.setUser_Id(twitterid);
-                   lDetails.setLast_Name(lastName);
+                    com.burn.burn.controller.profile.Profile profile1 =
+                            new com.burn.burn.controller.profile.Profile(twitterid,fullname, lastName);
+
+                    pushUser(profile1);
+//                   lDetails.setFirst_Name(fullname);
+//                   lDetails.setUser_Id(twitterid);
+//                   lDetails.setLast_Name(lastName);
 
 
 //                 String secondName = fullname.substring(fullname.lastIndexOf(" "));
@@ -292,14 +305,20 @@ public class LoginActivity extends AppCompatActivity {
         String secondName = (profile != null) ? profile.getLastName() : "User not logged in";
 
         if(id != null && firstName != null && secondName != null){
-            Login loginFB = new Login();
-            loginFB.setUser_Id(id);
-            loginFB.setFirst_Name(firstName);
-            loginFB.setLast_Name(secondName);
+//            Login loginFB = new Login();
+//            loginFB.setUser_Id(id);
+//            loginFB.setFirst_Name(firstName);
+//            loginFB.setLast_Name(secondName);
 
-            Log.d("First Name: ", " " + loginFB.getFirst_Name());
-            Log.d("Second Name: ", " " + loginFB.getLast_Name());
-            Log.d("ID: ", " " + loginFB.getUser_Id());
+
+            com.burn.burn.controller.profile.Profile profile1 =
+                    new com.burn.burn.controller.profile.Profile(id,firstName, secondName);
+
+            pushUser(profile1);
+
+//            Log.d("First Name: ", " " + loginFB.getFirst_Name());
+//            Log.d("Second Name: ", " " + loginFB.getLast_Name());
+//            Log.d("ID: ", " " + loginFB.getUser_Id());
         }else{
             Log.d("Problem: ", " Empty field from the user.");
         }
@@ -313,6 +332,37 @@ public class LoginActivity extends AppCompatActivity {
         updateUI(null);
     }
     // ---- END SIGN OUT
+
+    private void pushUser(com.burn.burn.controller.profile.Profile p) {
+        if(p == null)
+            return;
+
+        // Access a Cloud Firestore instance from your Activity.
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Create document to push to cloud.
+        Map<String, Object> profile = new HashMap<>();
+        profile.put("id", p.getId());
+        profile.put("first_name", p.getFirstName());
+        profile.put("last_name", p.getLastName());
+
+        // Send document to cloud.
+        db.collection("profile")
+                .add(profile)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+//                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+//                        Log.w(TAG, "Error adding document", e);
+                    }
+                });
+    }
+
 
     // ---- FACEBOOK UPDATE User INTERFACE
     private void updateUI(FirebaseUser user) {

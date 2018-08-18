@@ -50,10 +50,10 @@ public class ProfileActivity extends AppCompatActivity {
                 String city = txtCity.getText().toString();
                 String country = txtCountry.getText().toString();
 
-                Profile profile = new Profile(fname, lname, city, country,
-                        houseNum+" "+street);
-
-                pushUser(profile);
+//                Profile profile = new Profile(fname, lname, city, country,
+//                        houseNum+" "+street);
+//
+//                pushUser(profile);
             }
         });
 
