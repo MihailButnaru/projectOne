@@ -178,9 +178,7 @@ public class LoginActivity extends AppCompatActivity {
             public void success(Result<TwitterSession> result) {
                 Log.d(TWITTERTAG, "twitterLogin:success" + result);
                 handleTwitterSession(result.data);
-
             }
-
             @Override
             public void failure(TwitterException exception) {
                 Log.w(TWITTERTAG, "twitterLogin:failure", exception);
@@ -192,7 +190,6 @@ public class LoginActivity extends AppCompatActivity {
         });
         // ---- TWITTER LOGIN -----------
     }
-
 
     // ---- TWITTER SESSION ----  METHOD THAT HANDLES THE DATA FROM THE API
     private void handleTwitterSession(final TwitterSession session) {
@@ -229,29 +226,24 @@ public class LoginActivity extends AppCompatActivity {
                 User user = userResult.data;
 
                 try {
-//                   Login lDetails = new Login();
-                   String fullname = user.name;
-                   String twitterid = String.valueOf(user.id);
-                   String lastName = fullname.substring(0, fullname.length()-1);
+                    String fullname = user.name;
+                    String twitterid = String.valueOf(user.id);
+                    String lastName = fullname.substring(0, fullname.length() - 1);
 
-                    com.burn.burn.controller.profile.Profile profile1 =
-                            new com.burn.burn.controller.profile.Profile(twitterid,fullname, lastName);
-
-                    pushUser(profile1);
-//                   lDetails.setFirst_Name(fullname);
-//                   lDetails.setUser_Id(twitterid);
-//                   lDetails.setLast_Name(lastName);
-
+                    LoginProfiles loginProfile = new LoginProfiles(twitterid, fullname, lastName);
+                    pushUser(loginProfile);
 
 //                 String secondName = fullname.substring(fullname.lastIndexOf(" "));
 //                 String firstName = fullname.substring(0, fullname.lastIndexOf(" "));
 //                 Log.d("USER ID: ", " "+ twitterid);
 //                 Log.d("FULL NAME, " , " " + fullname);
 //                 Log.d("FIRST NAME", " " + firstName);
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+
             @Override
             public void failure(TwitterException e) {
             }
@@ -305,20 +297,8 @@ public class LoginActivity extends AppCompatActivity {
         String secondName = (profile != null) ? profile.getLastName() : "User not logged in";
 
         if(id != null && firstName != null && secondName != null){
-//            Login loginFB = new Login();
-//            loginFB.setUser_Id(id);
-//            loginFB.setFirst_Name(firstName);
-//            loginFB.setLast_Name(secondName);
-
-
-            com.burn.burn.controller.profile.Profile profile1 =
-                    new com.burn.burn.controller.profile.Profile(id,firstName, secondName);
-
-            pushUser(profile1);
-
-//            Log.d("First Name: ", " " + loginFB.getFirst_Name());
-//            Log.d("Second Name: ", " " + loginFB.getLast_Name());
-//            Log.d("ID: ", " " + loginFB.getUser_Id());
+            LoginProfiles loginProfiles = new LoginProfiles(id,firstName, secondName);
+            pushUser(loginProfiles);
         }else{
             Log.d("Problem: ", " Empty field from the user.");
         }
@@ -333,7 +313,7 @@ public class LoginActivity extends AppCompatActivity {
     }
     // ---- END SIGN OUT
 
-    private void pushUser(com.burn.burn.controller.profile.Profile p) {
+    private void pushUser(LoginProfiles p) {
         if(p == null)
             return;
 
@@ -352,17 +332,16 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-//                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+                        Log.d(FACEBOOKTAG, "DocumentSnapshot added with ID: " + documentReference.getId());
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-//                        Log.w(TAG, "Error adding document", e);
+                        Log.w(FACEBOOKTAG, "Error adding document", e);
                     }
                 });
     }
-
 
     // ---- FACEBOOK UPDATE User INTERFACE
     private void updateUI(FirebaseUser user) {
