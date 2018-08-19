@@ -8,7 +8,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import com.burn.burn.R;
 
@@ -17,6 +19,7 @@ import com.burn.burn.R;
  */
 public class ProfileFragment extends Fragment {
 
+    private static final String TAG = "burn.ProfileFragment";
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -30,6 +33,7 @@ public class ProfileFragment extends Fragment {
         // Inflate the layout for this fragment
         View fragmentView = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        // Gender spinner
         Spinner spinner = (Spinner) fragmentView.findViewById(R.id.spinner_gender);
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getActivity().getBaseContext(),
@@ -38,6 +42,17 @@ public class ProfileFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
+
+        // Save button
+        Button btnSave = fragmentView.findViewById(R.id.btn_save);
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getActivity().getBaseContext(),
+                        "Not yet implemented!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
 
         return fragmentView;
     }
