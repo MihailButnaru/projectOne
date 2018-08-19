@@ -16,4 +16,19 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="lbl_fullname">Name</string>
+    <string name="lbl_city">City</string>
+    <string name="lbl_priv_info">Private Information</string>
+    <string name="lbl_email">Email</string>
+    <string name="txt_email">joebloggs@gmail.com</string>
+    <string name="lbl_phone">Phone</string>
+    <string name="txt_phone">07444192375</string>
+    <string name="lbl_gender">Gender</string>
+    <string name="lbl_save">Save</string>
+    <string-array name="gender_array">
+        <item>Not Specified</item>
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
 </resources>
