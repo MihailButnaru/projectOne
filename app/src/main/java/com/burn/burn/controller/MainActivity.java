@@ -16,15 +16,5 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
-        Button facebook_button = (Button) findViewById(R.id.loginfbButton);
-        Button twitter_button = (Button) findViewById(R.id.loginTwitter);
-
-        facebook_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, LoginActivity.class));
-            }
-        });
     }
 }
