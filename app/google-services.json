@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "267243424563-o69jv4vi92uqt20k8f6grkdfj8ddll43.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.burn.burn",
+            "certificate_hash": "9e5e324e301552886ef6eb846deacbf6f8a78e81"
+          }
+        },
+        {
           "client_id": "267243424563-tsl0i8q4d0rlk6o7l7n37ojuf9pnp6va.apps.googleusercontent.com",
           "client_type": 3
         }

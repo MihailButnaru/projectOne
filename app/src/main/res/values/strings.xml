@@ -9,4 +9,11 @@
     <string name="txt_country">Country:</string>
     <string name="txt_street">Street:</string>
     <string name="btn_save">Save</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_notif">Notifications</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_sell">Sell</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
