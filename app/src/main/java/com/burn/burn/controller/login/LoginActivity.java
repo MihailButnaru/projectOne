@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.burn.burn.controller.home.MainActivity;
 import com.burn.burn.controller.profile.ProfileActivity;
 import com.burn.burn.R;
 
@@ -317,6 +318,9 @@ public class LoginActivity extends AppCompatActivity {
         if(p == null)
             return;
 
+
+
+
         // Access a Cloud Firestore instance from your Activity.
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
@@ -341,6 +345,9 @@ public class LoginActivity extends AppCompatActivity {
                         Log.w(FACEBOOKTAG, "Error adding document", e);
                     }
                 });
+
+        nextActivity();
+
     }
 
     // ---- FACEBOOK UPDATE User INTERFACE
@@ -361,4 +368,13 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
     // END USER INTERFACE FACEBOOK
+
+
+    // ----- NEXT ACTIVITY ------
+    private void nextActivity(){
+        Intent main = new Intent(LoginActivity.this, MainActivity.class);
+        main.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(main);
+
+    }
 }

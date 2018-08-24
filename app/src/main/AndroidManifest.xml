@@ -3,6 +3,7 @@
     package="com.burn.burn">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
@@ -18,8 +19,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".controller.MainActivity" />
-        <activity android:name=".controller.profile.ProfileActivity"></activity>
+        <activity android:name=".controller.home.MainActivity" />
+        <activity android:name=".controller.profile.ProfileActivity" />
+        <activity android:name=".controller.comicDetails.ComicProfile"></activity>
     </application>
 
 </manifest>
