@@ -9,22 +9,15 @@
 
     <ImageView
         android:id="@+id/firstImage"
-        android:layout_width="146dp"
-        android:layout_height="320dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:adjustViewBounds="false"
+        android:layout_width="160dp"
+        android:layout_height="154dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="28dp"
         android:contentDescription="mainImage"
         android:scaleType="centerCrop"
         android:visibility="visible"
-        app:layout_constraintBottom_toTopOf="@+id/editText2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.056"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.421"
         app:srcCompat="@drawable/fui_idp_button_background_email" />
 
     <Button
@@ -59,6 +52,7 @@
 
     <EditText
         android:id="@+id/editText2"
+        style="@style/Widget.AppCompat.EditText"
         android:layout_width="268dp"
         android:layout_height="47dp"
         android:layout_marginBottom="8dp"
@@ -89,28 +83,28 @@
 
     <ImageView
         android:id="@+id/third_image"
-        android:layout_width="168dp"
-        android:layout_height="168dp"
-        android:layout_marginTop="16dp"
-        android:adjustViewBounds="false"
-        android:cropToPadding="true"
+        android:layout_width="89dp"
+        android:layout_height="89dp"
+        android:layout_marginRight="36dp"
+        android:layout_marginTop="44dp"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/com_facebook_button_background"
-        tools:layout_editor_absoluteX="206dp" />
+        app:srcCompat="@drawable/com_facebook_button_background" />
 
     <ImageView
         android:id="@+id/second_image"
-        android:layout_width="179dp"
-        android:layout_height="171dp"
+        android:layout_width="103dp"
+        android:layout_height="76dp"
+        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginRight="16dp"
         android:layout_marginStart="8dp"
-        android:adjustViewBounds="false"
-        android:cropToPadding="true"
+        app:layout_constraintBottom_toTopOf="@+id/editText2"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.865"
+        app:layout_constraintHorizontal_bias="0.942"
+        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/com_facebook_button_background"
-        tools:layout_editor_absoluteY="191dp" />
+        app:srcCompat="@drawable/com_facebook_button_background" />
 
 
 </android.support.constraint.ConstraintLayout>

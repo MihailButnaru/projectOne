@@ -345,16 +345,14 @@ public class LoginActivity extends AppCompatActivity {
                         Log.w(FACEBOOKTAG, "Error adding document", e);
                     }
                 });
-
-        nextActivity();
-
     }
 
     // ---- FACEBOOK UPDATE User INTERFACE
     private void updateUI(FirebaseUser user) {
         //hideProgressDialog();
         if (user != null) {
-          //  mStatusTextView.setText(getString(R.string.facebook_status_fmt, user.getDisplayName()));
+            nextActivity();
+            //  mStatusTextView.setText(getString(R.string.facebook_status_fmt, user.getDisplayName()));
             //mDetailTextView.setText(getString(R.string.firebase_status_fmt, user.getUid()));
 
             //findViewById(R.id.button_facebook_login).setVisibility(View.GONE);
