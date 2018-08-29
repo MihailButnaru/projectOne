@@ -1,6 +1,7 @@
 package com.burn.burn.controller.home;
 
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -9,9 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
 import com.burn.burn.R;
+import com.burn.burn.controller.comicDetails.ComicProfile;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -20,6 +24,8 @@ public class HomeActivity extends AppCompatActivity {
     private HomeFragment homeFragment;
     private NotificationFragment notificationFragment;
     private ProfileFragment profileFragment;
+    private Button comic_profile;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +42,7 @@ public class HomeActivity extends AppCompatActivity {
         profileFragment = new ProfileFragment();
 
         setFragment(homeFragment);
+
 
 
         mMainNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -62,11 +69,24 @@ public class HomeActivity extends AppCompatActivity {
                 return false;
             }
         });
+
+        comic_profile = (Button) findViewById(R.id.item_profile);
+        comic_profile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                nextComicProfile();
+            }
+        });
     }
 
     private void setFragment(Fragment fragment) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.main_frame, fragment);
         fragmentTransaction.commit();
+    }
+    private void nextComicProfile(){
+        Intent next_profile = new Intent(HomeActivity.this, ComicProfile.class);
+        next_profile.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(next_profile);
     }
 }

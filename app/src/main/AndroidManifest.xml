@@ -20,6 +20,7 @@
         </activity>
         <activity android:name=".controller.profile.ProfileActivity" />
         <activity android:name=".controller.home.HomeActivity"></activity>
+        <activity android:name=".controller.comicDetails.ComicProfile"></activity>
     </application>
 
 </manifest>
