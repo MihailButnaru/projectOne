@@ -5,8 +5,30 @@
     <string name="twitter_consumer_key" translatable="false">BeVSZlzqbOEWo56O7OBYRCca9</string>
     <string name="twitter_consumer_secret" translatable="false">tPL3PWy6rFMazllusLBTYZ3PwzRglLxjuhR8dqwQxKBxSxoRo4</string>
     <string name="txt_signup_form_loc_prompt">Please enter your address to continue.</string>
-    <string name="txt_city" >City:</string>
-    <string name="txt_country" >Country:</string>
-    <string name="txt_street" >Street:</string>
+    <string name="txt_city">City:</string>
+    <string name="txt_country">Country:</string>
+    <string name="txt_street">Street:</string>
     <string name="btn_save">Save</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_notif">Notifications</string>
+    <string name="nav_profile">Profile</string>
+    <string name="nav_sell">Sell</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="lbl_fullname">Name</string>
+    <string name="lbl_city">City</string>
+    <string name="lbl_priv_info">Private Information</string>
+    <string name="lbl_email">Email</string>
+    <string name="txt_email">joebloggs@gmail.com</string>
+    <string name="lbl_phone">Phone</string>
+    <string name="txt_phone">07444192375</string>
+    <string name="lbl_gender">Gender</string>
+    <string name="lbl_save">Save</string>
+    <string-array name="gender_array">
+        <item>Not Specified</item>
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
 </resources>

@@ -12,9 +12,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
-import com.burn.burn.controller.profile.ProfileActivity;
 import com.burn.burn.R;
 
+import com.burn.burn.controller.home.HomeActivity;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -69,6 +69,8 @@ import android.widget.Toast;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private static final String TAG = "burn.LoginActivity";
+
     // ----- FACEBOOK LOGIN ----- [DO NOT MODIFY]
     private static final String FACEBOOKTAG = "FacebookLogin";
     private FirebaseAuth mAuth;
@@ -90,16 +92,30 @@ public class LoginActivity extends AppCompatActivity {
 
     public static final String EXTRA_USERNAME = "com.burn.burn.MESSAGE";
     final int duration = Toast.LENGTH_SHORT; // Duration for which toast is on-screen.
+    private Button btnBackdoor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        final Context context = getApplicationContext(); // Necessary to create a Toast.
 
+        final Context context = getApplicationContext(); // Necessary to create a Toast.
+        // Switch to HomeActivity upon successful sign-in.
+        final Intent intent = new Intent(this, HomeActivity.class);
         super.onCreate(savedInstanceState);
-        FacebookSdk.sdkInitialize(getApplicationContext());
         setContentView(R.layout.activity_login);
 
+        /*
+         * WARNING: Remove this test backdoor before going into production!
+         */
+        btnBackdoor = (Button) findViewById(R.id.btn_backdoor);
+        btnBackdoor.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(intent); // open HomeActivity.
+            }
+        });
+
         // -------- FACEBOOK LOGIN ------------
+        FacebookSdk.sdkInitialize(getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
         mCallbackManager = CallbackManager.Factory.create();
         loginfbButton = (LoginButton) findViewById(R.id.loginfbButton);
@@ -177,12 +193,14 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void success(Result<TwitterSession> result) {
                 Log.d(TWITTERTAG, "twitterLogin:success" + result);
-                handleTwitterSession(result.data);
+                twitterLogin(intent, context, result.data);
+
             }
+
             @Override
             public void failure(TwitterException exception) {
                 Log.w(TWITTERTAG, "twitterLogin:failure", exception);
-                updateUI(null);
+
                 CharSequence text = "Twitter sign-in failed!";
                 Toast toast = Toast.makeText(context, text, duration);
                 toast.show();
@@ -191,9 +209,17 @@ public class LoginActivity extends AppCompatActivity {
         // ---- TWITTER LOGIN -----------
     }
 
-    // ---- TWITTER SESSION ----  METHOD THAT HANDLES THE DATA FROM THE API
-    private void handleTwitterSession(final TwitterSession session) {
-        Log.d(TWITTERTAG, "handleTwitterSession:" + session);
+
+    /**
+     * Calls twitter API for authentication and transitions to HomeActivity upon successful
+     * sign-in.
+     * @param intent
+     * @param context
+     * @param session
+     */
+    private void twitterLogin(final Intent intent,
+                              final Context context, final TwitterSession session) {
+        Log.d(TWITTERTAG, "twitterLogin:" + session);
         AuthCredential credential = TwitterAuthProvider.getCredential(
                 session.getAuthToken().token,
                 session.getAuthToken().secret);
@@ -202,48 +228,61 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
+                        CharSequence toastMsg = "Sign-in failed!";
+                        int toastDuration = Toast.LENGTH_LONG;
                         if (task.isSuccessful()) {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TWITTERTAG, "signInWithCredential:success");
+                            toastMsg = "Sign-in complete.";
+                            Toast.makeText(context, toastMsg, toastDuration).show();
+
+                            startActivity(intent); // Open MainActivity.
+
+
+                            // TODO: Session should be sent to Firebase on a background thread.
                             FirebaseUser user = mAuth.getCurrentUser();
-                            getUserDetails(session);
-                            updateUI(user);
+                            recordSession(session);
+
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TWITTERTAG, "signInWithCredential:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, toastMsg, toastDuration).show();
                             updateUI(null);
                         }
                     }
                 });
     }
 
-    public void getUserDetails(TwitterSession twitterSession) {
+    public void recordSession(TwitterSession twitterSession) {
         TwitterCore.getInstance().getApiClient(twitterSession).getAccountService().verifyCredentials(false,true,false).enqueue(new Callback<User>() {
             @Override
             public void success(Result<User> userResult) {
                 User user = userResult.data;
 
                 try {
-                    String fullname = user.name;
-                    String twitterid = String.valueOf(user.id);
-                    String lastName = fullname.substring(0, fullname.length() - 1);
+//                   Login lDetails = new Login();
+                   String fullname = user.name;
+                   String twitterid = String.valueOf(user.id);
+                   String lastName = fullname.substring(0, fullname.length()-1);
 
-                    LoginProfiles loginProfile = new LoginProfiles(twitterid, fullname, lastName);
-                    pushUser(loginProfile);
+                    com.burn.burn.controller.profile.Profile profile1 =
+                            new com.burn.burn.controller.profile.Profile(twitterid,fullname, lastName);
+
+                    pushUser(profile1);
+//                   lDetails.setFirst_Name(fullname);
+//                   lDetails.setUser_Id(twitterid);
+//                   lDetails.setLast_Name(lastName);
+
 
 //                 String secondName = fullname.substring(fullname.lastIndexOf(" "));
 //                 String firstName = fullname.substring(0, fullname.lastIndexOf(" "));
 //                 Log.d("USER ID: ", " "+ twitterid);
 //                 Log.d("FULL NAME, " , " " + fullname);
 //                 Log.d("FIRST NAME", " " + firstName);
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-
             @Override
             public void failure(TwitterException e) {
             }
@@ -297,8 +336,20 @@ public class LoginActivity extends AppCompatActivity {
         String secondName = (profile != null) ? profile.getLastName() : "User not logged in";
 
         if(id != null && firstName != null && secondName != null){
-            LoginProfiles loginProfiles = new LoginProfiles(id,firstName, secondName);
-            pushUser(loginProfiles);
+//            Login loginFB = new Login();
+//            loginFB.setUser_Id(id);
+//            loginFB.setFirst_Name(firstName);
+//            loginFB.setLast_Name(secondName);
+
+
+            com.burn.burn.controller.profile.Profile profile1 =
+                    new com.burn.burn.controller.profile.Profile(id,firstName, secondName);
+
+            pushUser(profile1);
+
+//            Log.d("First Name: ", " " + loginFB.getFirst_Name());
+//            Log.d("Second Name: ", " " + loginFB.getLast_Name());
+//            Log.d("ID: ", " " + loginFB.getUser_Id());
         }else{
             Log.d("Problem: ", " Empty field from the user.");
         }
@@ -313,7 +364,7 @@ public class LoginActivity extends AppCompatActivity {
     }
     // ---- END SIGN OUT
 
-    private void pushUser(LoginProfiles p) {
+    private void pushUser(com.burn.burn.controller.profile.Profile p) {
         if(p == null)
             return;
 
@@ -332,16 +383,17 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
-                        Log.d(FACEBOOKTAG, "DocumentSnapshot added with ID: " + documentReference.getId());
+//                        Log.d(TAG, "DocumentSnapshot added with ID: " + documentReference.getId());
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.w(FACEBOOKTAG, "Error adding document", e);
+//                        Log.w(TAG, "Error adding document", e);
                     }
                 });
     }
+
 
     // ---- FACEBOOK UPDATE User INTERFACE
     private void updateUI(FirebaseUser user) {
